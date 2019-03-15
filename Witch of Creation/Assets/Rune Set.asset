@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e9504b04471c34287fce1350efd2ea, type: 3}
+  m_Name: Rune Set
+  m_EditorClassIdentifier: 
+  Element:
+    Basic: {fileID: 3737436379546534001, guid: 88b8e992ebc5b9e488442033e451941d, type: 3}
+    Injection: {fileID: 0}
+    Amplifier: {fileID: 0}
+    EnergyInput: {fileID: 0}
