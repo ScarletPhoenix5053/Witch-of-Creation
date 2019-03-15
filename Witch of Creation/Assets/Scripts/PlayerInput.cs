@@ -30,14 +30,16 @@ public class PlayerInput : MonoBehaviour
     public event OnMouseClickHandler OnMouseClick;
 
     private Vector3 _mousePos;
+    [SerializeField]
+    private ElementSelector _elementSelector;
 
     private void CheckElementOnHover()
     {
-        RuneManager.PlaceElement(_mousePos, ElementType.Basic, false);
+        RuneManager.PlaceElement(_mousePos, _elementSelector.CurrentElement, false);
     }
     private void CheckElementOnInput()
     {
-        RuneManager.PlaceElement(_mousePos, ElementType.Basic, true);
+        RuneManager.PlaceElement(_mousePos, _elementSelector.CurrentElement, true);
     }
     private void GetMousePos()
     {

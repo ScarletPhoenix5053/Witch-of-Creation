@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Element:
     Basic: {fileID: 3737436379546534001, guid: 88b8e992ebc5b9e488442033e451941d, type: 3}
-    Injection: {fileID: 0}
-    Amplifier: {fileID: 0}
-    EnergyInput: {fileID: 0}
+    Injection: {fileID: 3737436379546534001, guid: 2e3e65c5369881840b7c729b7c85bd3e,
+      type: 3}
+    Amplifier: {fileID: 3737436379546534001, guid: 249b5b62894b60d4a84d76c8d1dfa12e,
+      type: 3}
+    EnergyInput: {fileID: 3737436379546534001, guid: 543d73e0708fa514083708d08d9a39c0,
+      type: 3}

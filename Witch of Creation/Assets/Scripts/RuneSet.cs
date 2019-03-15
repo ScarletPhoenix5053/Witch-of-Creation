@@ -17,7 +17,7 @@ public class RuneSet : ScriptableObject
 }
 public enum ElementType
 {
-    Basic,
+    Basic = 1,
     Injection,
     Amplifier,
     EnergyInput
