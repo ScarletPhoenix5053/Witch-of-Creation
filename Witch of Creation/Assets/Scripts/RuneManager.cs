@@ -29,6 +29,7 @@ public class RuneManager : MonoBehaviour
     }
 
     public static RuneManager Instance { get; private set; }
+    public static StartButton StartButton { get { return Instance._startButton; } }
 
     [SerializeField]
     private RuneSet _runeSet;
@@ -59,7 +60,13 @@ public class RuneManager : MonoBehaviour
     }
     public void EndRitual()
     {
+        foreach (Transform child in _nodes)
+        {
+            var node = child.GetComponent<RuneNode>();
 
+            // Find and reset all runes
+            node.ResetEnergyFlow();
+        }
     }
 
     /// <summary>

@@ -9,13 +9,62 @@ public class RuneNode : MonoBehaviour
     }
     private void Update()
     {
+        // Fail if max power exceeded
+        if (Power > _maxPower)
+        {
+            RuneManager.StartButton.SetStateOff();
+            return;
+        }
+
+        // Generate energy
         if (_emitEnergyAsSource)
         {
-            Power += _powerGain * Time.deltaTime;
-            Debug.Log(Power);
+            Power += _powerGeneration * Time.deltaTime;
         }
+
+        // Send Energy
+        if (Power > _minWorkingPower)
+        {
+            foreach (RuneLink connection in Connections)
+            {
+                if (connection == null) continue;
+
+                var powerDivision = _powerGain * Time.deltaTime;
+                if (ActiveConnections != 0) powerDivision = powerDivision / ActiveConnections;
+                Power -= connection.SendEnergy(powerDivision, sender: this);
+            }
+        }
+
+        // Update colour
+        var col = _inactiveColour;
+        if (Power >= _highPower)
+        {
+            col = _highChargeColour;
+        }
+        else if (Power >= _minWorkingPower - 0.1f)
+        {
+            col = _activeColour;
+        }
+        if (_elementAObj != null) _elementAObj.GetComponent<SpriteRenderer>().color = col;
+
     }
 
+    public int ActiveConnections
+    {
+        get
+        {
+            var activeConnections = 0;
+
+            if (Connections == null && Connections.Count <= 0) return activeConnections;
+            foreach (RuneLink connection in Connections)
+            {
+                if (connection == null) continue;
+
+                if (connection.Active) activeConnections++;
+            }
+            return activeConnections;
+        }
+    }
     public Vector2 Position { get { return transform.position; } set { transform.position = value; } }
 
     public List<RuneLink> Connections;
@@ -35,10 +84,18 @@ public class RuneNode : MonoBehaviour
     private GameObject _elementBObj;
     [SerializeField]
     private RuneSet _runeSet;
-    private const float _powerGain = 1f;
+
+    private const float _powerGeneration = 0.3f;
+    private const float _powerGain = 0.3f;
     private const float _maxPower = 1f;
+    private const float _highPower = 0.75f;
+    private const float _minWorkingPower = 0.25f;
     private const float _powerAmp = 3f;
     private bool _emitEnergyAsSource = false;
+
+    private Color _inactiveColour = Color.black;
+    private Color _activeColour = Color.yellow;
+    private Color _highChargeColour = Color.red;
 
     public void SpawnElement(ElementType type, int index)
     {
@@ -97,17 +154,31 @@ public class RuneNode : MonoBehaviour
     public void StartEnergyFlow()
     {
         if (_elementAObj == null) return;
-        Debug.Log("Checking " + name);
 
         if (_elementAObj.GetComponent<RuneElement>() is EnergyInputElement)
         {
             // Start Energy Flow
             _emitEnergyAsSource = true;
-            Debug.Log("Starting energy flow in " + name);
         }
     }
     public void ResetEnergyFlow()
     {
         _emitEnergyAsSource = false;
+        Power = 0;
+
+        // Reset Colour
+        if (_elementAObj != null) _elementAObj.GetComponent<SpriteRenderer>().color = _inactiveColour;
+
+        // Reset links
+        if (Connections == null && Connections.Count <= 0) return;
+        foreach (RuneLink connection in Connections)
+        {
+            if (connection == null) continue;
+            connection.ResetEnergyFlow();
+        }
+    }
+    public void IncreaseEnergy(float amount)
+    {
+        Power += amount;
     }
 }

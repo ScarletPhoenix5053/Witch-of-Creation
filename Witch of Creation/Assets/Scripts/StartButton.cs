@@ -23,9 +23,7 @@ public class StartButton : MonoBehaviour
     {
         if (Active)
         {
-            Active = false;
-            if (_image != null) _image.color = _inactiveColour;
-            OnRitualEnd?.Invoke();
+            SetStateOff();
         }
         else
         {
@@ -33,5 +31,11 @@ public class StartButton : MonoBehaviour
             if (_image != null) _image.color = _activeColour;
             OnRitualStart?.Invoke();
         }
+    }
+    public void SetStateOff()
+    {
+        Active = false;
+        if (_image != null) _image.color = _inactiveColour;
+        OnRitualEnd?.Invoke();
     }
 }
