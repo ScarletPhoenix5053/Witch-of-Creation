@@ -27,6 +27,7 @@ public class RuneManager : MonoBehaviour
     private float _maxPointerdistFromNode = 4f;
     private GameObject _previewElement;
     private ElementType _prevElement = ElementType.Basic;
+    private RuneNode _lineStartNode;
 
     /// <summary>
     /// Check or place an element, snapped to a new position, based on a vector2 location.
@@ -39,23 +40,15 @@ public class RuneManager : MonoBehaviour
     {
         var posIsValid = false;
         snappedPos = Vector2.zero;
+        RuneNode snappedNode;
 
         // Find  nearest valid node
-        var closestNodeDist = Instance._maxPointerdistFromNode;
-        for (int n = 0; n < Instance._nodes.childCount; n++)
+        snappedNode = FindNearestValidNode(position, out posIsValid);
+        snappedPos = snappedNode.Position;
+        if (!posIsValid)
         {
-            var node = Instance._nodes.GetChild(n);
-            var nodeDist = Vector3.Distance(position, node.position);
-            if (nodeDist < closestNodeDist)
-            {
-                snappedPos = node.position;
-                closestNodeDist = nodeDist;
-            }
-        }
-        if (closestNodeDist >= Instance._maxPointerdistFromNode)
-        {
+            // Disable preview if there is no valid node.
             if (Instance._previewElement.activeInHierarchy != false) Instance._previewElement.SetActive(false);
-            posIsValid = false;
             return posIsValid;
         }
 
@@ -106,6 +99,23 @@ public class RuneManager : MonoBehaviour
     {
         return PlaceElement(position, elementType, input, out Vector2 snappedPos);
     }
+
+    public static bool StartLine(Vector2 position, bool input)
+    {
+        // Find nearest valid node
+        var posIsValid = false;
+        var nearestNode = FindNearestValidNode(position, out posIsValid);
+        if (!posIsValid) return false;
+
+        // On input, return true and store the node
+        if (input)
+        {
+            Instance._lineStartNode = nearestNode;
+            return true;
+        }
+
+        return false;
+    }
     
     private static void GenerateOuterCircleNodes()
     {
@@ -124,5 +134,37 @@ public class RuneManager : MonoBehaviour
     private static void AddNodesInside(Transform parent)
     {
 
+    }
+    /// <summary>
+    /// Sets snappedPos to the position of the nearest node. Returns false if there are no nodes close enough.
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="snappedNode"></param>
+    /// <returns></returns>
+    private static RuneNode FindNearestValidNode(Vector2 position, out bool nodeNearby)
+    {
+        RuneNode snappedNode = null;
+
+        var closestNodeDist = Instance._maxPointerdistFromNode;
+        for (int n = 0; n < Instance._nodes.childCount; n++)
+        {
+            var node = Instance._nodes.GetChild(n);
+            var nodeDist = Vector3.Distance(position, node.position);
+            if (nodeDist < closestNodeDist)
+            {
+                // Update return node
+                snappedNode = node.GetComponent<RuneNode>();
+                closestNodeDist = nodeDist;
+            }
+        }
+        // If there wasn't a valid node
+        if (closestNodeDist >= Instance._maxPointerdistFromNode)
+        {
+            // Notify root method that there was no valid node
+            nodeNearby = false;
+        }
+        else nodeNearby = true;
+
+        return snappedNode;
     }
 }

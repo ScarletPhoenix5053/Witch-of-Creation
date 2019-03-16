@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,8 +6,9 @@ public class PlayerInput : MonoBehaviour
 {
     private void Awake()
     {
-        OnMouseNormal += CheckElementOnHover;
-        OnMouseClick += CheckElementOnInput;
+        // Initialize as element selector by default
+        _activeTool = ActiveTool.Line;
+        SetActiveTool("Element");
     }
     private void Update()
     {
@@ -32,6 +33,8 @@ public class PlayerInput : MonoBehaviour
     private Vector3 _mousePos;
     [SerializeField]
     private ElementSelector _elementSelector;
+    [SerializeField]
+    private ActiveTool _activeTool;
 
     private void CheckElementOnHover()
     {
@@ -41,6 +44,14 @@ public class PlayerInput : MonoBehaviour
     {
         RuneManager.PlaceElement(_mousePos, _elementSelector.CurrentElement, true);
     }
+    private void CheckLineOnHover()
+    {
+        Debug.Log("Mehhh");
+    }
+    private void CheckLineOnInput()
+    {
+        Debug.Log("YEET");
+    }
     private void GetMousePos()
     {
         Camera cam = Camera.main;
@@ -48,4 +59,33 @@ public class PlayerInput : MonoBehaviour
 
         _mousePos = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, cam.nearClipPlane));
     }
+    public void SetActiveTool(string aString)
+    {
+        var newTool = (ActiveTool)Enum.Parse(typeof(ActiveTool), aString, true);
+        if (newTool == _activeTool) return;
+
+        switch (newTool)
+        {
+            case ActiveTool.Element:                
+                OnMouseNormal += CheckElementOnHover;
+                OnMouseClick += CheckElementOnInput;
+                OnMouseNormal -= CheckLineOnHover;
+                OnMouseClick -= CheckLineOnInput;
+                break;
+
+            case ActiveTool.Line:
+                OnMouseNormal += CheckLineOnHover;
+                OnMouseClick += CheckLineOnInput;
+                OnMouseNormal -= CheckElementOnHover;
+                OnMouseClick -= CheckElementOnInput;
+                break;
+        }
+
+        _activeTool = newTool;
+    }
+}
+public enum ActiveTool
+{
+    Element,
+    Line
 }
