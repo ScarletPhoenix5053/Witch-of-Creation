@@ -28,6 +28,7 @@ public class RuneManager : MonoBehaviour
     private GameObject _previewElement;
     private ElementType _prevElement = ElementType.Basic;
     private RuneNode _lineStartNode;
+    private RuneNode _previousSnappedNode;
 
     /// <summary>
     /// Check or place an element, snapped to a new position, based on a vector2 location.
@@ -75,6 +76,22 @@ public class RuneManager : MonoBehaviour
             Instance._prevElement = elementType;
             Instance._previewElement.GetComponent<SpriteRenderer>().sprite = elementObject.GetComponent<SpriteRenderer>().sprite;
         }
+        // Update preview node visibility if new node is snapped to
+        if (Instance._previousSnappedNode != null)
+        {
+            if (Instance._previousSnappedNode != snappedNode)
+            {
+                Instance._previousSnappedNode.ShowConnections(false);
+                snappedNode.ShowConnections(true);
+                Instance._previousSnappedNode = snappedNode;
+            }
+        }
+        else
+        {
+            // Give reference if null
+            Instance._previousSnappedNode = snappedNode;
+        }
+
 
         // Spawn on input, else update preview pos
         if (input)

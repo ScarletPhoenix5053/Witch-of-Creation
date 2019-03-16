@@ -10,10 +10,16 @@ public class RuneNode : MonoBehaviour
 
     public Vector2 Position { get { return transform.position; } set { transform.position = value; } }
 
-    public List<RuneLink> Connections { get; set; }
+    public List<RuneLink> Connections;
 
     public float Power { get; private set; }
-    public bool Active { get; private set; }
+    public bool Active
+    {
+        get
+        {
+            return _elementAObj != null || _elementBObj != null;
+        }
+    }
 
     [SerializeField]
     private GameObject _elementAObj;
@@ -53,6 +59,26 @@ public class RuneNode : MonoBehaviour
         {
             if (_elementBObj != null) Destroy(_elementBObj);
             _elementBObj = Instantiate(elementObject, transform.position, Quaternion.identity);
+        }
+
+        // Connect to any linked active nodes
+        foreach (RuneLink connection in Connections)
+        {
+            if (connection == null) continue;
+
+            var otherNode = connection.GetOther(this);
+            if (otherNode == null) continue;
+
+            if (otherNode.Active) connection.SetActive(true);
+        }
+    }
+    public void ShowConnections(bool visibility)
+    {
+        if (Connections == null && Connections.Count <= 0) return;
+        foreach (RuneLink connection in Connections)
+        {
+            if (connection == null) continue;
+            connection.SetVisible(visibility);
         }
     }
 }
