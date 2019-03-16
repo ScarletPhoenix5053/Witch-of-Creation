@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3737436379546534003}
   - component: {fileID: 3737436379546534002}
   m_Layer: 0
-  m_Name: Element - Insertion
+  m_Name: Element - Injection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

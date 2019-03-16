@@ -10,9 +10,22 @@ public class RuneManager : MonoBehaviour
         else Destroy(this);
 
         //GenerateOuterCircleNodes();
+
+        // Create preview
         _previewElement = Instantiate(_runeSet.Element.Basic, transform);
         _previewElement.name = "Preview Element";
         _previewElement.GetComponent<SpriteRenderer>().color = Color.cyan;
+
+        // Couple methods to start button
+        if (_startButton != null)
+        {
+            _startButton.OnRitualStart += BeginRitual;
+            _startButton.OnRitualEnd += EndRitual;
+        }
+        else
+        {
+            throw new MissingReferenceException("Start Button reference of the Rune Manager must be assigned in inspector.");
+        }
     }
 
     public static RuneManager Instance { get; private set; }
@@ -25,10 +38,29 @@ public class RuneManager : MonoBehaviour
     private Transform _nodes;
     [SerializeField]
     private float _maxPointerdistFromNode = 4f;
+    [SerializeField]
+    private StartButton _startButton;
+
     private GameObject _previewElement;
     private ElementType _prevElement = ElementType.Basic;
     private RuneNode _lineStartNode;
     private RuneNode _previousSnappedNode;
+
+    public void BeginRitual()
+    {
+        foreach (Transform child in _nodes)
+        {
+            var node = child.GetComponent<RuneNode>();
+
+
+            // Find and activate all energy input runes
+            node.StartEnergyFlow();
+        }
+    }
+    public void EndRitual()
+    {
+
+    }
 
     /// <summary>
     /// Check or place an element, snapped to a new position, based on a vector2 location.

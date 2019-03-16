@@ -7,6 +7,14 @@ public class RuneNode : MonoBehaviour
     {
         Power = 0;
     }
+    private void Update()
+    {
+        if (_emitEnergyAsSource)
+        {
+            Power += _powerGain * Time.deltaTime;
+            Debug.Log(Power);
+        }
+    }
 
     public Vector2 Position { get { return transform.position; } set { transform.position = value; } }
 
@@ -27,6 +35,10 @@ public class RuneNode : MonoBehaviour
     private GameObject _elementBObj;
     [SerializeField]
     private RuneSet _runeSet;
+    private const float _powerGain = 1f;
+    private const float _maxPower = 1f;
+    private const float _powerAmp = 3f;
+    private bool _emitEnergyAsSource = false;
 
     public void SpawnElement(ElementType type, int index)
     {
@@ -80,5 +92,22 @@ public class RuneNode : MonoBehaviour
             if (connection == null) continue;
             connection.SetVisible(visibility);
         }
+    }
+
+    public void StartEnergyFlow()
+    {
+        if (_elementAObj == null) return;
+        Debug.Log("Checking " + name);
+
+        if (_elementAObj.GetComponent<RuneElement>() is EnergyInputElement)
+        {
+            // Start Energy Flow
+            _emitEnergyAsSource = true;
+            Debug.Log("Starting energy flow in " + name);
+        }
+    }
+    public void ResetEnergyFlow()
+    {
+        _emitEnergyAsSource = false;
     }
 }
