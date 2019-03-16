@@ -14,4 +14,9 @@ public class RuneNode : MonoBehaviour
 
     public float Power { get; private set; }
     public bool Active { get; private set; }
+
+    [SerializeField]
+    private RuneElement _elementA;
+    [SerializeField]
+    private RuneElement _elementB;
 }
