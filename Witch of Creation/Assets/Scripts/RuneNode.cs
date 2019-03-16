@@ -10,7 +10,8 @@ public class RuneNode : MonoBehaviour
 
     public Vector2 Position { get { return transform.position; } set { transform.position = value; } }
 
-    public List<RuneNode> Connected { get; set; }
+    public List<RuneLink> Connections { get; set; }
 
     public float Power { get; private set; }
+    public bool Active { get; private set; }
 }
