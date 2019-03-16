@@ -44,13 +44,14 @@ public class RuneManager : MonoBehaviour
 
         // Find  nearest valid node
         snappedNode = FindNearestValidNode(position, out posIsValid);
-        snappedPos = snappedNode.Position;
         if (!posIsValid)
         {
             // Disable preview if there is no valid node.
             if (Instance._previewElement.activeInHierarchy != false) Instance._previewElement.SetActive(false);
             return posIsValid;
         }
+        snappedPos = snappedNode.Position;
+
 
         // Check element
         var elementObject = Instance._runeSet.Element.Basic;
@@ -68,16 +69,17 @@ public class RuneManager : MonoBehaviour
                 elementObject = Instance._runeSet.Element.EnergyInput;
                 break;
         }
-        // Update preview if changed
+        // Update preview img if changed
         if (Instance._prevElement != elementType)
         {
             Instance._prevElement = elementType;
             Instance._previewElement.GetComponent<SpriteRenderer>().sprite = elementObject.GetComponent<SpriteRenderer>().sprite;
         }
 
+        // Spawn on input, else update preview pos
         if (input)
         {
-            Instantiate(elementObject, snappedPos, Quaternion.identity);
+            snappedNode.SpawnElement(elementType, 0);
             if (Instance._previewElement.activeInHierarchy != false) Instance._previewElement.SetActive(false);
         }
         else

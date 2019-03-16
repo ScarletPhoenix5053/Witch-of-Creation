@@ -16,7 +16,43 @@ public class RuneNode : MonoBehaviour
     public bool Active { get; private set; }
 
     [SerializeField]
-    private RuneElement _elementA;
+    private GameObject _elementAObj;
     [SerializeField]
-    private RuneElement _elementB;
+    private GameObject _elementBObj;
+    [SerializeField]
+    private RuneSet _runeSet;
+
+    public void SpawnElement(ElementType type, int index)
+    {
+        if (index < 0 || index > 1) throw new System.IndexOutOfRangeException();
+
+        // Find correct prefab by element type
+        var elementObject = _runeSet.Element.Basic;
+        switch (type)
+        {
+            case ElementType.Injection:
+                elementObject = _runeSet.Element.Injection;
+                break;
+
+            case ElementType.Amplifier:
+                elementObject = _runeSet.Element.Amplifier;
+                break;
+
+            case ElementType.EnergyInput:
+                elementObject = _runeSet.Element.EnergyInput;
+                break;
+        }
+        
+        // Remove any existing gameobject and replace with new one based on type.
+        if (index == 0)
+        {
+            if (_elementAObj != null) Destroy(_elementAObj);
+            _elementAObj = Instantiate(elementObject, transform.position, Quaternion.identity);
+        }
+        else
+        {
+            if (_elementBObj != null) Destroy(_elementBObj);
+            _elementBObj = Instantiate(elementObject, transform.position, Quaternion.identity);
+        }
+    }
 }
