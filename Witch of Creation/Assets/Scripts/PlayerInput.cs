@@ -14,6 +14,39 @@ public class PlayerInput : MonoBehaviour
     {
         GetMousePos();
 
+        // On right click
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+            if (hit.collider != null)
+            {
+                // If already configuring node
+                if (_configuringNodeRotation)
+                {
+                    // Rotate the node to face new clicked target
+                    var clickedElement = hit.collider.GetComponent<RuneElement>();
+                    _lookAtNode = clickedElement.transform.parent.GetComponent<RuneNode>();
+                    _configuringNode.RotateTowards(_lookAtNode);
+                    _configuringNodeRotation = false;
+                    _lookAtNode = null;
+                    _configuringNode = null;
+                }
+                else
+                {
+                    // Check if on an injection node
+                    var injectionElement = hit.collider.GetComponent<InjectionElement>();
+                    if (injectionElement != null )
+                    {
+                        _configuringNodeRotation = true;
+                        _configuringNode = injectionElement.transform.parent.GetComponent<RuneNode>();
+                        Debug.Log("Configuring injection node");
+                    }
+                }
+            }            
+        }
+
+        // Call events
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             OnMouseClick?.Invoke();
@@ -21,7 +54,7 @@ public class PlayerInput : MonoBehaviour
         else
         {
             OnMouseNormal?.Invoke();
-        }
+        }      
     }
 
     public delegate void OnMouseNormalHandler();
@@ -35,7 +68,18 @@ public class PlayerInput : MonoBehaviour
     private ElementSelector _elementSelector;
     [SerializeField]
     private ActiveTool _activeTool;
+    private RuneNode _configuringNode;
+    private RuneNode _lookAtNode;
+    private bool _configuringNodeRotation = false;
 
+    private void CheckNodeRotationOnHover()
+    {
+
+    }
+    private void CheckNodeRotationOnInput()
+    {
+
+    }
     private void CheckElementOnHover()
     {
         RuneManager.PlaceElement(_mousePos, _elementSelector.CurrentElement, false);
@@ -69,6 +113,7 @@ public class PlayerInput : MonoBehaviour
             case ActiveTool.Element:                
                 OnMouseNormal += CheckElementOnHover;
                 OnMouseClick += CheckElementOnInput;
+
                 OnMouseNormal -= CheckLineOnHover;
                 OnMouseClick -= CheckLineOnInput;
                 break;
@@ -76,8 +121,18 @@ public class PlayerInput : MonoBehaviour
             case ActiveTool.Line:
                 OnMouseNormal += CheckLineOnHover;
                 OnMouseClick += CheckLineOnInput;
+
                 OnMouseNormal -= CheckElementOnHover;
                 OnMouseClick -= CheckElementOnInput;
+                break;
+
+            case ActiveTool.NodeRotation:
+                OnMouseNormal -= CheckLineOnHover;
+                OnMouseNormal -= CheckElementOnHover;
+                OnMouseClick -= CheckLineOnInput;
+                OnMouseClick -= CheckElementOnInput;
+
+                
                 break;
         }
 
@@ -87,5 +142,6 @@ public class PlayerInput : MonoBehaviour
 public enum ActiveTool
 {
     Element,
-    Line
+    Line,
+    NodeRotation
 }

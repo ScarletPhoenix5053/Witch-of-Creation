@@ -5,10 +5,16 @@ public class RuneNode : MonoBehaviour
 {
     private void Awake()
     {
-        Power = 0;
+        Power = 0;   
     }
     private void Update()
     {
+        // Locate a target if injection node
+        if (IsInjectionNode && _injectionTarget == null)
+        {
+            _injectionTarget = Connections[0].GetOther(this);
+        }
+
         // Fail if max power exceeded
         if (Power > _maxPower)
         {
@@ -25,13 +31,42 @@ public class RuneNode : MonoBehaviour
         // Send Energy
         if (Power > _minWorkingPower)
         {
-            foreach (RuneLink connection in Connections)
+            if (IsInjectionNode)
             {
-                if (connection == null) continue;
+                // Distribute power to target node
+                if (_injectionLink != null)
+                {
+                    Power -= _injectionLink.SendEnergy(_powerGain * Time.deltaTime, sender: this);
+                }
+                else
+                {
+                    // Assign injection link if null
+                    foreach (RuneLink connection in Connections)
+                    {
+                        if (connection == null) continue;
 
-                var powerDivision = _powerGain * Time.deltaTime;
-                if (ActiveConnections != 0) powerDivision = powerDivision / ActiveConnections;
-                Power -= connection.SendEnergy(powerDivision, sender: this);
+                        if (connection.GetOther(this) == _injectionTarget)
+                        {
+                            _injectionLink = connection;
+                            break;
+                        }
+                    }
+
+                    // Log failure warning if cannot find link
+                    if (_injectionLink == null) Debug.LogError("Cannot find link between injection node " + name + " and it's target " + _injectionTarget.name);
+                }
+            }
+            else
+            {
+                // Distirbute power between all nodes
+                foreach (RuneLink connection in Connections)
+                {
+                    if (connection == null) continue;
+
+                    var powerDivision = _powerGain * Time.deltaTime;
+                    if (ActiveConnections != 0) powerDivision = powerDivision / ActiveConnections;
+                    Power -= connection.SendEnergy(powerDivision, sender: this);
+                }
             }
         }
 
@@ -77,6 +112,13 @@ public class RuneNode : MonoBehaviour
             return _elementAObj != null || _elementBObj != null;
         }
     }
+    public bool IsInjectionNode
+    {
+        get
+        {
+            return _elementAObj != null ? _elementAObj.GetComponent<RuneElement>() is InjectionElement : false ;
+        }
+    }
 
     [SerializeField]
     private GameObject _elementAObj;
@@ -92,6 +134,9 @@ public class RuneNode : MonoBehaviour
     private const float _minWorkingPower = 0.25f;
     private const float _powerAmp = 3f;
     private bool _emitEnergyAsSource = false;
+
+    private RuneNode _injectionTarget;
+    private RuneLink _injectionLink;
 
     private Color _inactiveColour = Color.black;
     private Color _activeColour = Color.yellow;
@@ -122,12 +167,12 @@ public class RuneNode : MonoBehaviour
         if (index == 0)
         {
             if (_elementAObj != null) Destroy(_elementAObj);
-            _elementAObj = Instantiate(elementObject, transform.position, Quaternion.identity);
+            _elementAObj = Instantiate(elementObject, transform.position, Quaternion.identity, transform);
         }
         else
         {
             if (_elementBObj != null) Destroy(_elementBObj);
-            _elementBObj = Instantiate(elementObject, transform.position, Quaternion.identity);
+            _elementBObj = Instantiate(elementObject, transform.position, Quaternion.identity, transform);
         }
 
         // Connect to any linked active nodes
@@ -180,5 +225,13 @@ public class RuneNode : MonoBehaviour
     public void IncreaseEnergy(float amount)
     {
         Power += amount;
+    }
+    
+    public void RotateTowards(RuneNode targetNode)
+    {
+        Debug.Log(targetNode.name + "is target");
+
+        var angle = Vector3.Angle(Vector3.up, Position - targetNode.Position);
+        transform.rotation = Quaternion.Euler(new Vector3(0, 0, targetNode.Position.x < Position.x ? -angle : angle));
     }
 }

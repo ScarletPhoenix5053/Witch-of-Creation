@@ -15,6 +15,7 @@ public class RuneManager : MonoBehaviour
         _previewElement = Instantiate(_runeSet.Element.Basic, transform);
         _previewElement.name = "Preview Element";
         _previewElement.GetComponent<SpriteRenderer>().color = Color.cyan;
+        _previewElement.layer = LayerMask.NameToLayer("Ignore Raycast");
 
         // Couple methods to start button
         if (_startButton != null)
